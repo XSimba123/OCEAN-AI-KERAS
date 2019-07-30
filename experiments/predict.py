@@ -11,8 +11,8 @@ from keras.layers import Conv2D, MaxPool2D
 from keras.utils.np_utils import to_categorical
 from keras.callbacks import Callback
 import sklearn.metrics as metrics
-from sklearn.metrics import f1_score, precision_score, recall_score
-dropout_keep_prob = 0.5
+from sklearn.metrics import f1_score, precision_score, recall_score, classification_report
+dropout_keep_prob = 1
 class_nums = 50
 LABEL_PATH = r'/home/xujingning/ocean/ocean_data/test_label.csv'
 DATA_PATH = '/home/xujingning/ocean/ocean_data/test_data_img/'
@@ -44,11 +44,8 @@ class Metrics(Callback):
 _metrics = Metrics()
 
 os.environ['TF_CPP_MIN_LOG_LEVEL'] = '2'
-labels, imgs, _ = get_data(DATA_PATH, LABEL_PATH)
-total_imgs_train, total_imgs_test, total_labels_train, total_labels_test = train_test_split(imgs, labels, test_size=0.3, random_state=16)
-
-total_labels_train, total_labels_test = to_categorical(total_labels_train, class_nums), to_categorical(total_labels_test, class_nums)
-
+total_labels_test, total_imgs_test = get_data(DATA_PATH, LABEL_PATH)
+total_labels_test = to_categorical(total_labels_test, class_nums)
 input_shape = (224, 224, 3)
 
 model = Sequential(name='vgg 16-sequential')
@@ -87,10 +84,13 @@ model.load_weights('/home/xujingning/ocean/ocean_data/VGG+weighted/my_model_weig
 import keras.optimizers
 opt = keras.optimizers.Adadelta()
 model.compile(loss='categorical_crossentropy',optimizer=opt, metrics=['accuracy'])
-final_pred = model.predict(total_imgs_test)
-print('precision micro: ', metrics.precision_score(total_labels_test, final_pred, average='micro'))
-print('precision macro: ', metrics.precision_score(total_labels_test, final_pred, average='macro'))
-print('recall micro: ', metrics.recall_score(total_labels_test, final_pred, average='micro'))
-print('recall macro: ', metrics.recall_score(total_labels_test, final_pred, average='macro'))
-print('f1 micro: ', metrics.f1_score(total_labels_test, final_pred, average='micro'))
-print('f1 macro: ', metrics.f1_score(total_labels_test, final_pred, average='macro'))
+pred = model.predict(total_imgs_test)
+print(pred)
+for i in range(len(pred)):
+        max_value=max(pred[i])
+        for j in range(len(pred[i])):
+            if max_value==pred[i][j]:
+                pred[i][j]=1
+            else:
+                pred[i][j]=0
+print(classification_report(total_labels_test, pred))

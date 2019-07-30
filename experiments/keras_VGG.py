@@ -11,7 +11,7 @@ from keras.layers import Conv2D, MaxPool2D
 from keras.utils.np_utils import to_categorical
 from keras.callbacks import Callback
 from sklearn.metrics import f1_score, precision_score, recall_score
-dropout_keep_prob = 0.5
+dropout_keep_prob = 0.8
 class_nums = 50
 LABEL_PATH = r'/home/xujingning/ocean/ocean_data/label.csv'
 DATA_PATH = '/home/xujingning/ocean/ocean_data/data_img/'
@@ -43,7 +43,7 @@ class Metrics(Callback):
 _metrics = Metrics()
 
 os.environ['TF_CPP_MIN_LOG_LEVEL'] = '2'
-labels, imgs, _ = get_data(DATA_PATH, LABEL_PATH)
+labels, imgs = get_data(DATA_PATH, LABEL_PATH)
 total_imgs_train, total_imgs_test, total_labels_train, total_labels_test = train_test_split(imgs, labels, test_size=0.3, random_state=16)
 
 total_labels_train, total_labels_test = to_categorical(total_labels_train, class_nums), to_categorical(total_labels_test, class_nums)
